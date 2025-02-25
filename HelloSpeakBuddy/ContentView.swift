@@ -17,6 +17,14 @@ struct ContentView: View {
     var DISMISS_BTN_WIDTH: CGFloat {
         horizontalSizeClass == .compact ? 38 : 48
     }
+    
+    @Environment(\.safeAreaInsets) var safeAreaInsets
+    var ACTION_BTN_BOTTOM_MARGIN: CGFloat {
+        safeAreaInsets.bottom > 0 ? 20 : 40
+    }
+    var HEADER_TEXT_TOP_MARGIN: CGFloat {
+        safeAreaInsets.bottom + ACTION_BTN_BOTTOM_MARGIN
+    }
 
     // State for graph animation
     @State private var graphHeight: CGFloat = 0
@@ -25,98 +33,142 @@ struct ContentView: View {
     var body: some View {
         
         ZStack {
-            VStack {
+            VStack(alignment: .center) {
                 // Header Text
+                Spacer().frame(maxHeight: HEADER_TEXT_TOP_MARGIN)
                 Text("Hello SpeakBUDDY")
+                    // I prefer to use font symbols rather than specific point sizes to better support Dynamic Type.
+                    // As a result, the text styles may slightly differ from those in Figma.
+                    // However, this approach is beneficial when establishing a design system, as it ensures consistency across pages.
+                    // Using typography symbols is also a best practice for syncing styles throughout the app.
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .padding(.top, 56)
                     .padding(.horizontal, 40)
                     .multilineTextAlignment(.center)
                 
                 // Graph
+                Spacer().frame(maxHeight: 85).layoutPriority(-1)
                 GraphView(showGraph: $showGraph)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(.top, 85)
-                    .padding(.leading, 40)
-                    .padding(.trailing, 40)
+//                    .padding(.horizontal, 40)
+                    .layoutPriority(-1)
                 
                 // Desc Texts
-                VStack {
+                Spacer().frame(height: 30)
+                VStack(spacing: 0) {
                     Text("スピークバディで")
+                        .font(.headline)
                     Text("レベルアップ")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .kerning(-0.57)
+                        .frame(height: 45)
+                        .foregroundStyle(
+                            // Don't extract colors only use once
+                            LinearGradient(colors: [Color(hex: "#6FD4FF"), Color(hex: "#0075FF")], startPoint: .top, endPoint: .bottom)
+                        )
+                        .multilineTextAlignment(.center)
                 }
-                .padding(.top, 30)
-                .padding(.bottom, 25)
+//                .padding(.top, 30)
+//                .padding(.bottom, 25)
+                Spacer().frame(height: 25)
                 
                 // Button to register plan
                 Button(action: {
                     // Handle registration action
                 }) {
                     Text("プランに登録する")
-                        .frame(maxWidth: .infinity, maxHeight: 50)
-                        .foregroundColor(.white)
-                        .background(.blue)
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .foregroundStyle(.white)
+                        .background(
+                            Capsule()
+                                .fill(.skyBlue)
+                                .stroke(.white, lineWidth: 1)
+                                .shadow(radius: 10, y: 10)
+                        )
                 }
-                .buttonStyle(.borderedProminent)
-                .buttonBorderShape(.capsule)
+                .padding(.bottom, ACTION_BTN_BOTTOM_MARGIN)
             }
             .onAppear {
                 // Animate the graph when the view appears
-                withAnimation(.easeInOut(duration: 2.0)) {
-                    self.showGraph = true
-                }
+                self.showGraph = true
             }
+            .foregroundStyle(.darkGrey)
 
             // Dismiss btn
             Button {
                 // Handle action
             } label: {
                 Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.black, .white)
+                    .foregroundStyle(.darkGrey, .white)
                     .font(.system(size: DISMISS_BTN_WIDTH))
             }
             .shadow(radius: 10, y: 2)
             .position(x: UIScreen.main.bounds.width - DISMISS_BTN_WIDTH / 2 - HORI_MARGIN * 2, y: 8 + DISMISS_BTN_WIDTH / 2) // Positions the button at the top-right corner
         }
         .padding(.horizontal, HORI_MARGIN)
+        .background(
+            LinearGradient(
+                // Don't extract colors only use once
+                gradient: Gradient(colors: [Color(hex: "#D5D2FF"), Color.white.opacity(0)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
     }
 }
 
+// Assume this view be a specific view only use here
+// so we don't separate it to another file.
+// Refactor if we're going to reuse it.
 struct GraphView: View {
     @Binding var showGraph: Bool
     
     // Heights for the bars (in percentage of the max height)
+    // These values represent a conceptual growth trend and are not actual data.
+    // Since they don't change frequently, there's no need to extract them as parameters.
     let heights: [CGFloat] = [0.22, 0.33, 0.73, 1.0]
     
     var body: some View {
-        HStack(alignment: .bottom) {
-            ForEach(0..<heights.count, id: \.self) { index in
-                VStack {
-                    Rectangle()
-                        .fill(Color.blue)
-                        .frame(width: 48, height: showGraph ? (300 * heights[index]) : 0)
-                        .animation(.easeInOut(duration: 2.0), value: showGraph)
-                    
-                    Text(self.getGraphLabel(index: index))
-                        .font(.system(size: 12))
-                        .padding(.top, 5)
-                }
-                
-                if index < heights.count - 1 {
-                    Spacer()
+        GeometryReader { geometry in
+            HStack(alignment: .bottom, spacing: 26) {
+                ForEach(0..<heights.count, id: \.self) { index in
+                    VStack {
+                        Spacer()
+                        
+                        // Don't extract colors only use once
+                        LinearGradient(colors: [Color(hex: "#58C0FF"), Color(hex: "#1F8FFF")], startPoint: .top, endPoint: .bottom)
+                            .clipShape(
+                                // Don't extract the values that only use once
+                                .rect(
+                                    topLeadingRadius: 2.73,
+                                    topTrailingRadius: 2.73
+                                )
+                            )
+                            .frame(width: 48, height: showGraph ? (300 * heights[index]) : 0)
+                            .padding(.top, showGraph ? 0 : (300 * heights[index]))
+                            .animation(.easeOut(duration: 0.6).delay(0.74 + Double(index) * 0.12), value: showGraph)
+                        
+                        Text(self.getGraphLabel(index: index))
+                            .font(.footnote)
+                            .fontWeight(.bold)
+                            .padding(.top, 5)
+                    }
                 }
             }
-        }
-        .frame(maxWidth: .infinity, alignment: .center)
-        .overlay() {
-            // Character Image
-            Image("protty") // Assuming image is named buddyCharacter
-                .resizable()
-                .scaledToFit()
-                .frame(height: 160)
-                .position(x: 56, y: 28)
-            
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+            .overlay() {
+                // Character Image
+                Image("protty")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(height: 160)
+                    .position(x: 56, y: 28)
+                
+            }
+            .scaleEffect(geometry.size.height/377)
         }
     }
     
