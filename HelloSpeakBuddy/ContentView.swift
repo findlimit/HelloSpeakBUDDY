@@ -11,20 +11,27 @@ struct ContentView: View {
     
     // Adjust layout metrics based on the size classes
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    var HORI_MARGIN: CGFloat {
+    private var HORI_MARGIN: CGFloat {
         horizontalSizeClass == .compact ? 20 : 60
     }
-    var DISMISS_BTN_WIDTH: CGFloat {
+    private var DISMISS_BTN_WIDTH: CGFloat {
         horizontalSizeClass == .compact ? 38 : 48
+    }
+    private var ACTION_BTN_MAX_WIDTH_RATIO: Double {
+        horizontalSizeClass == .compact ? 1 : 0.5
     }
     
     // Adjust layout metrics to support both TouchID / FaceID devices
     @Environment(\.safeAreaInsets) var safeAreaInsets
-    var ACTION_BTN_BOTTOM_MARGIN: CGFloat {
+    private var ACTION_BTN_BOTTOM_MARGIN: CGFloat {
         safeAreaInsets.bottom > 0 ? 20 : 40
     }
-    var HEADER_TEXT_TOP_MARGIN: CGFloat {
+    private var HEADER_TEXT_TOP_MARGIN: CGFloat {
         safeAreaInsets.bottom + ACTION_BTN_BOTTOM_MARGIN
+    }
+    
+    private var SCREEN_SIZE: CGRect {
+        UIScreen.main.bounds
     }
 
     // State for graph animation
@@ -37,20 +44,22 @@ struct ContentView: View {
             VStack(alignment: .center) {
                 // Header Text
                 Spacer().frame(height: HEADER_TEXT_TOP_MARGIN)
-                Text("Hello SpeakBUDDY")
-                    // I prefer to use font symbols rather than specific point sizes to better support Dynamic Type.
-                    // As a result, the text styles may slightly differ from those in Figma.
-                    // However, this approach is beneficial when establishing a design system, as it ensures consistency across pages.
-                    // Using typography symbols is also a best practice for syncing styles throughout the app.
+                Text("Hello\nSpeakBUDDY")
+                    // I prefer using font symbols instead of fixed point sizes to better support Dynamic Type.
+                    // This may cause slight differences from the Figma design, but it ensures scalability and accessibility.
+                    // Once our design system is established, we can adopt custom typography symbols defined by us.
+                    // Using font symbols from the start helps maintain consistency and makes it easier to update styles across the app.
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .padding(.horizontal, 40)
                     .multilineTextAlignment(.center)
                 
                 // Graph
                 Spacer().frame(maxHeight: 32).layoutPriority(-1)
                 GraphView(showGraph: $showGraph)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: SCREEN_SIZE.height * 0.5
+                    )
                     .layoutPriority(-1)
                 
                 // Desc Texts
@@ -79,7 +88,7 @@ struct ContentView: View {
                 }) {
                     Text("プランに登録する")
                         .fontWeight(.semibold)
-                        .frame(maxWidth: .infinity)
+                        .frame(maxWidth: SCREEN_SIZE.width * ACTION_BTN_MAX_WIDTH_RATIO)
                         .padding()
                         .foregroundStyle(.white)
                         .background(
