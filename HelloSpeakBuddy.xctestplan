@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "F28DAB0C-3D23-4883-ADDE-292C7C38A1F9",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:HelloSpeakBuddy.xcodeproj",
+      "identifier" : "413E16E42D6C32E30051ED3C",
+      "name" : "HelloSpeakBuddy"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:HelloSpeakBuddy.xcodeproj",
+        "identifier" : "413E16F42D6C32E50051ED3C",
+        "name" : "HelloSpeakBuddyTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:HelloSpeakBuddy.xcodeproj",
+        "identifier" : "413E16FE2D6C32E50051ED3C",
+        "name" : "HelloSpeakBuddyUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
