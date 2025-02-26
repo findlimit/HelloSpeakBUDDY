@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct SubscriptionView: View {
+    // Inject the ViewModel
+    @StateObject var viewModel: SubscriptionViewModel
     
     // Adjust layout metrics based on the size classes
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -34,10 +36,6 @@ struct SubscriptionView: View {
         UIScreen.main.bounds
     }
 
-    // State for graph animation
-    @State private var graphHeight: CGFloat = 0
-    @State private var showGraph = false
-    
     var body: some View {
         
         ZStack {
@@ -55,7 +53,7 @@ struct SubscriptionView: View {
                 
                 // Graph
                 Spacer().frame(maxHeight: 32).layoutPriority(-1)
-                GraphView(showGraph: $showGraph)
+                GraphView(showGraph: $viewModel.showGraph)
                     .frame(
                         maxWidth: .infinity,
                         maxHeight: SCREEN_SIZE.height * 0.5
@@ -84,7 +82,7 @@ struct SubscriptionView: View {
                 
                 // Button to register plan
                 Button(action: {
-                    // TODO: Handle registration action
+                    viewModel.registerPlan()
                 }) {
                     Text("プランに登録する")
                         .fontWeight(.semibold)
@@ -102,13 +100,13 @@ struct SubscriptionView: View {
             }
             .onAppear {
                 // Animate the graph when the view appears
-                self.showGraph = true
+                viewModel.showGraph = true
             }
             .foregroundStyle(.darkGrey)
 
             // Dismiss btn
             Button {
-                // TODO: Handle action
+                viewModel.dismiss()
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(.darkGrey, .white)
@@ -201,6 +199,6 @@ struct GraphView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        SubscriptionView()
+        SubscriptionView(viewModel: SubscriptionViewModel())
     }
 }
