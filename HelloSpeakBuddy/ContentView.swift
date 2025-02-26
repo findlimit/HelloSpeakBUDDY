@@ -18,6 +18,7 @@ struct ContentView: View {
         horizontalSizeClass == .compact ? 38 : 48
     }
     
+    // Adjust layout metrics to support both TouchID / FaceID devices
     @Environment(\.safeAreaInsets) var safeAreaInsets
     var ACTION_BTN_BOTTOM_MARGIN: CGFloat {
         safeAreaInsets.bottom > 0 ? 20 : 40
@@ -35,7 +36,7 @@ struct ContentView: View {
         ZStack {
             VStack(alignment: .center) {
                 // Header Text
-                Spacer().frame(maxHeight: HEADER_TEXT_TOP_MARGIN)
+                Spacer().frame(height: HEADER_TEXT_TOP_MARGIN)
                 Text("Hello SpeakBUDDY")
                     // I prefer to use font symbols rather than specific point sizes to better support Dynamic Type.
                     // As a result, the text styles may slightly differ from those in Figma.
@@ -47,10 +48,9 @@ struct ContentView: View {
                     .multilineTextAlignment(.center)
                 
                 // Graph
-                Spacer().frame(maxHeight: 85).layoutPriority(-1)
+                Spacer().frame(maxHeight: 32).layoutPriority(-1)
                 GraphView(showGraph: $showGraph)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-//                    .padding(.horizontal, 40)
                     .layoutPriority(-1)
                 
                 // Desc Texts
@@ -58,9 +58,11 @@ struct ContentView: View {
                 VStack(spacing: 0) {
                     Text("スピークバディで")
                         .font(.headline)
+                        .frame(height: 30)
                     Text("レベルアップ")
                         .font(.title)
                         .fontWeight(.bold)
+                        .font(Font.system(size: 30, weight: .medium))
                         .kerning(-0.57)
                         .frame(height: 45)
                         .foregroundStyle(
@@ -69,13 +71,11 @@ struct ContentView: View {
                         )
                         .multilineTextAlignment(.center)
                 }
-//                .padding(.top, 30)
-//                .padding(.bottom, 25)
                 Spacer().frame(height: 25)
                 
                 // Button to register plan
                 Button(action: {
-                    // Handle registration action
+                    // TODO: Handle registration action
                 }) {
                     Text("プランに登録する")
                         .fontWeight(.semibold)
@@ -99,14 +99,18 @@ struct ContentView: View {
 
             // Dismiss btn
             Button {
-                // Handle action
+                // TODO: Handle action
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .foregroundStyle(.darkGrey, .white)
                     .font(.system(size: DISMISS_BTN_WIDTH))
             }
             .shadow(radius: 10, y: 2)
-            .position(x: UIScreen.main.bounds.width - DISMISS_BTN_WIDTH / 2 - HORI_MARGIN * 2, y: 8 + DISMISS_BTN_WIDTH / 2) // Positions the button at the top-right corner
+            // positions the button at the top-right corner
+            .position(
+                x: UIScreen.main.bounds.width - DISMISS_BTN_WIDTH / 2 - HORI_MARGIN * 2,
+                y: 8 + DISMISS_BTN_WIDTH / 2
+            )
         }
         .padding(.horizontal, HORI_MARGIN)
         .background(
@@ -120,9 +124,8 @@ struct ContentView: View {
     }
 }
 
-// Assume this view be a specific view only use here
-// so we don't separate it to another file.
-// Refactor if we're going to reuse it.
+// This view is intended for use in this specific context, so it's kept here.
+// If we need to reuse it in other parts of the app, we should refactor it into a separate file.
 struct GraphView: View {
     @Binding var showGraph: Bool
     
@@ -133,42 +136,41 @@ struct GraphView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            HStack(alignment: .bottom, spacing: 26) {
-                ForEach(0..<heights.count, id: \.self) { index in
-                    VStack {
-                        Spacer()
-                        
-                        // Don't extract colors only use once
-                        LinearGradient(colors: [Color(hex: "#58C0FF"), Color(hex: "#1F8FFF")], startPoint: .top, endPoint: .bottom)
-                            .clipShape(
-                                // Don't extract the values that only use once
-                                .rect(
-                                    topLeadingRadius: 2.73,
-                                    topTrailingRadius: 2.73
+            VStack(alignment: .center) {
+                Spacer().frame(height: 52)
+                HStack(alignment: .bottom, spacing: 26) {
+                    ForEach(0..<heights.count, id: \.self) { index in
+                        VStack {
+                            // Don't extract colors only use once
+                            LinearGradient(colors: [Color(hex: "#58C0FF"), Color(hex: "#1F8FFF")], startPoint: .top, endPoint: .bottom)
+                                .clipShape(
+                                    // Don't extract the values that only use once
+                                    .rect(
+                                        topLeadingRadius: 2.73,
+                                        topTrailingRadius: 2.73
+                                    )
                                 )
-                            )
-                            .frame(width: 48, height: showGraph ? (300 * heights[index]) : 0)
-                            .padding(.top, showGraph ? 0 : (300 * heights[index]))
-                            .animation(.easeOut(duration: 0.6).delay(0.74 + Double(index) * 0.12), value: showGraph)
-                        
-                        Text(self.getGraphLabel(index: index))
-                            .font(.footnote)
-                            .fontWeight(.bold)
-                            .padding(.top, 5)
+                                .frame(width: 48, height: showGraph ? (300 * heights[index]) : 0)
+                                .padding(.top, showGraph ? 0 : (300 * heights[index]))
+                                .animation(.easeOut(duration: 0.6).delay(0.74 + Double(index) * 0.12), value: showGraph)
+                            
+                            Text(self.getGraphLabel(index: index))
+                                .font(.footnote)
+                                .fontWeight(.bold)
+                                .padding(.top, 5)
+                        }
                     }
                 }
+                .frame(width: 270, height: 325)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .overlay() {
+            .overlay {
                 // Character Image
                 Image("protty")
-                    .resizable()
-                    .scaledToFit()
                     .frame(height: 160)
-                    .position(x: 56, y: 28)
-                
+                    .position(x: 56, y: 80)
             }
-            .scaleEffect(geometry.size.height/377)
+            .frame(maxWidth: .infinity)
+            .scaleEffect(geometry.size.height / 377, anchor: .top)
         }
     }
     
@@ -191,6 +193,5 @@ struct GraphView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
-            .previewDevice("iPhone 14")
     }
 }
