@@ -1,5 +1,5 @@
 //
-//  ContentView.swift
+//  SubscriptionView.swift
 //  HelloSpeakBuddy
 //
 //  Created by Peter Hsu on 2025/2/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct SubscriptionView: View {
     
     // Adjust layout metrics based on the size classes
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -201,6 +201,6 @@ struct GraphView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        SubscriptionView()
     }
 }

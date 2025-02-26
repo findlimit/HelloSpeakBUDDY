@@ -11,7 +11,7 @@ import SwiftUI
 struct HelloSpeakBuddyApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SubscriptionView()
         }
     }
 }
