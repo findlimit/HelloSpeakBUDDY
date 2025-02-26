@@ -40,22 +40,32 @@ struct SubscriptionView: View {
         
         ZStack {
             VStack(alignment: .center) {
-                // Header Text
+                
+                // I align the header's top margin and the action button's bottom margin
+                // to create a more balanced layout across different devices.
                 Spacer().frame(height: HEADER_TEXT_TOP_MARGIN)
+                
+                // Header Text
                 Text("Hello\nSpeakBUDDY")
                     // I prefer using font symbols instead of fixed point sizes to better support Dynamic Type.
                     // This may cause slight differences from the Figma design, but it ensures scalability and accessibility.
                     // Once our design system is established, we can adopt custom typography symbols defined by us.
                     // Using font symbols from the start helps maintain consistency and makes it easier to update styles across the app.
+                    // Additionally, I haven't adjusted the font size for iPad devices.
+                    // A single font symbol can be set to different sizes based on the device, which can be fine-tuned once the custom typography system is established.
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                 
-                // Graph
+                // This Spacer() is flexible and can shrink when the screen height is compact, such as on iPhones with Touch ID.
                 Spacer().frame(maxHeight: 32).layoutPriority(-1)
+                
+                // Graph
                 GraphView(showGraph: $viewModel.showGraph)
                     .frame(
                         maxWidth: .infinity,
+                        // To better adapt to iPad devices,
+                        // I limit the maxHeight to 50% of the screen height for a more balanced layout.
                         maxHeight: SCREEN_SIZE.height * 0.5
                     )
                     .layoutPriority(-1)
@@ -86,6 +96,9 @@ struct SubscriptionView: View {
                 }) {
                     Text("プランに登録する")
                         .fontWeight(.semibold)
+                        // To better adapt to iPad devices,
+                        // I limit the action button's maxWidth to 50% of the screen width,
+                        // providing a more reasonable size for the button on larger screens.
                         .frame(maxWidth: SCREEN_SIZE.width * ACTION_BTN_MAX_WIDTH_RATIO)
                         .padding()
                         .foregroundStyle(.white)
@@ -105,6 +118,8 @@ struct SubscriptionView: View {
             .foregroundStyle(.darkGrey)
 
             // Dismiss btn
+            // I enlarge the dismiss button size on iPad devices,
+            // providing a more reasonable size for the button on larger screens.
             Button {
                 viewModel.dismiss()
             } label: {
@@ -131,7 +146,7 @@ struct SubscriptionView: View {
     }
 }
 
-// This view is intended for use in this specific context, so it's kept here.
+// GraphView is intended for use in this specific context, so it's kept here.
 // If we need to reuse it in other parts of the app, we should refactor it into a separate file.
 struct GraphView: View {
     @Binding var showGraph: Bool
@@ -143,6 +158,9 @@ struct GraphView: View {
     
     var body: some View {
         GeometryReader { geometry in
+            // Use a fixed-height Spacer() to initially position the graph according to the design metrics from Figma.
+            // Then, leverage layoutPriority and GeometryReader to calculate and adjust the height dynamically.
+            // Scale the view to maintain its aspect ratio while matching the calculated height.
             VStack(alignment: .center) {
                 Spacer().frame(height: 52)
                 HStack(alignment: .bottom, spacing: 26) {
